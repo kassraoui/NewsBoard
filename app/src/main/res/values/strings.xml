@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">NewsBoard</string>
+    <string name="title_home">Home</string>
+    <string name="title_categories">Categories</string>
+    <string name="title_settings">Settings</string>
+    <string name="usaToday">usa today</string>
+    <string name="article_title">Bitcoin\'s value drops to more than one-year low during big cryptocurrency sell-off</string>
+    <string name="article_date">2018–11–25</string>
+    <string name="base_url">https://newsapi.org/v2/</string>
+    <string name="api_key">6e0c897063c440f985a7b7d34f913693</string>
+    <string name="source_logo">SourceLogo</string>
+    <string name="more_logo">moreLogo</string>
+    <string name="article_image">article_image</string>
+    <string name="article_image_desc">article image</string>
+</resources>
