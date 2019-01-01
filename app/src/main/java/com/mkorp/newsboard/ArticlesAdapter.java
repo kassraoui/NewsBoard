@@ -1,5 +1,7 @@
 package com.mkorp.newsboard;
 
+import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -44,28 +46,26 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        if(position == articles.size() - 1)
+        if (position == (articles.size() - 1) * 2 / 3)
             onBottomReachedListener.onBottomReached(position);
-        RequestOptions requestOptions = new RequestOptions();
-        requestOptions.error(R.drawable.no_image_available);
+        RequestOptions requestOptions = new RequestOptions()
+                .error(R.drawable.no_image_available);
 
         Article article = articles.get(position);
         holder.article = article;
-        Glide.with(holder.sourceImageView.getContext())
+        Glide.with(holder.getContext())
                 .setDefaultRequestOptions(requestOptions)
                 .load(article.getSource().getUrlToImage())
                 .into(holder.sourceImageView);
         holder.sourceNameView.setText(article.getSource().getName());
         holder.articleTitleView.setText(article.getTitle());
 
-        requestOptions.placeholder(R.drawable.loading_image);
-        Glide.with(holder.articleImageView.getContext())
+        Glide.with(holder.getContext())
                 .setDefaultRequestOptions(requestOptions)
                 .load(article.getUrlToImage())
                 .into(holder.articleImageView);
 
-        DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(holder.articleDateView.getContext());
-        holder.articleDateView.setText(dateFormat.format(article.getPublishedAt()));
+        holder.articleDateView.setText(article.getPublishedAt().toString());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +97,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         final View mView;
         final ImageView sourceImageView;
         final TextView sourceNameView;
-        final TextView  articleTitleView;
+        final TextView articleTitleView;
         final ImageView articleImageView;
         final TextView articleDateView;
 
@@ -111,6 +111,10 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             articleTitleView = view.findViewById(R.id.articleTitle);
             articleImageView = view.findViewById(R.id.articleImage);
             articleDateView = view.findViewById(R.id.articleDate);
+        }
+
+        public Context getContext(){
+            return mView.getContext();
         }
     }
 }

@@ -24,13 +24,20 @@ public class Article {
         this.author = author;
         this.content = content;
         this.source = new Source(source.getId(), source.getName(), getDomainFromUrl(url));
-        this.title = title;
+        this.title = cleanTitle(title);
         this.description = description;
         this.url = url;
         this.urlToImage = urlToImage;
         this.publishedAt = publishedAt;
     }
 
+    private String cleanTitle(String title)
+    {
+        int lastIndex = title.lastIndexOf("-");
+        if(lastIndex<=0)
+            return title;
+        return title.substring(0, lastIndex - 1);
+    }
     private String getDomainFromUrl(String url)
     {
         try {

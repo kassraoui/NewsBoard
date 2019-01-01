@@ -37,10 +37,11 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public class HomeFragment extends Fragment {
 
     private OnArticleClickedListener onArticleClickedListener;
+    private RecyclerView.AdapterDataObserver adapterDataObserver;
     private Retrofit retrofit;
     private int nextPage = 1;
     private ArticlesAdapter adapter;
-    private final String TAG = "HomeFragment";
+    public static final String TAG = "HomeFragment";
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -49,8 +50,10 @@ public class HomeFragment extends Fragment {
     public HomeFragment() {
     }
 
-    public static HomeFragment newInstance() {
-        return new HomeFragment();
+    public static HomeFragment newInstance(RecyclerView.AdapterDataObserver adapterDataObserver) {
+        HomeFragment homeFragment = new HomeFragment();
+        homeFragment.adapterDataObserver = adapterDataObserver;
+        return homeFragment;
     }
 
     @Override
@@ -79,6 +82,8 @@ public class HomeFragment extends Fragment {
             final RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
+            adapter = new ArticlesAdapter(new ArrayList<Article>(), onArticleClickedListener);
+            adapter.registerAdapterDataObserver(adapterDataObserver);
             final String API_KEY = getResources().getString(R.string.api_key);
             final OnBottomReachedListener onBottomReachedListener = new OnBottomReachedListener() {
                 @Override
@@ -92,7 +97,7 @@ public class HomeFragment extends Fragment {
                             if (apiResponse != null && apiResponse.getStatus() == Status.ok) {
                                 List<Article> articles = apiResponse.getArticles();
                                 if (articles.size() == 0)
-                                    Toast.makeText(getContext(), "No further articles found", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getContext(), "No more articles found", Toast.LENGTH_LONG).show();
                                 else
                                     adapter.loadNextArticles(articles);
                             } else {
@@ -104,7 +109,6 @@ public class HomeFragment extends Fragment {
                         @Override
                         public void onFailure(Call<ApiResponse> call, Throwable t) {
                             Log.e(TAG, t.toString());
-                            adapter = new ArticlesAdapter(new ArrayList<Article>(), onArticleClickedListener);
                             Toast.makeText(getContext(), "Failed to request NewsApi", Toast.LENGTH_LONG).show();
                         }
                     });
@@ -119,11 +123,10 @@ public class HomeFragment extends Fragment {
                     ApiResponse apiResponse = response.body();
                     if (apiResponse != null && apiResponse.getStatus() == Status.ok) {
                         List<Article> articles = apiResponse.getArticles();
-                        adapter = new ArticlesAdapter(articles, onArticleClickedListener);
+                        adapter.loadNextArticles(articles);
                     } else {
                         Log.e(TAG, String.format("Failed to request NewsApi : %s", apiResponse != null ? apiResponse.getMessage() : ""));
                         Toast.makeText(getContext(), "Failed to request NewsApi", Toast.LENGTH_LONG).show();
-                        adapter = new ArticlesAdapter(new ArrayList<Article>(), onArticleClickedListener);
                     }
                     adapter.setOnBottomReachedListener(onBottomReachedListener);
                     recyclerView.setAdapter(adapter);
@@ -136,8 +139,6 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to request NewsApi", Toast.LENGTH_LONG).show();
                 }
             });
-
-
         }
         return view;
     }
