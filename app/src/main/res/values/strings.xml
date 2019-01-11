@@ -12,4 +12,5 @@
     <string name="more_logo">moreLogo</string>
     <string name="article_image">article_image</string>
     <string name="article_image_desc">article image</string>
+    <string name="country_spinner_title">Country</string>
 </resources>

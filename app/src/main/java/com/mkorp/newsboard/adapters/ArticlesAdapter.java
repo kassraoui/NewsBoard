@@ -1,8 +1,9 @@
-package com.mkorp.newsboard;
+package com.mkorp.newsboard.adapters;
 
 import android.content.Context;
-import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,27 +12,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
-import com.mkorp.newsboard.HomeFragment.OnArticleClickedListener;
-import com.mkorp.newsboard.HomeFragment.OnBottomReachedListener;
-import com.mkorp.newsboard.dummy.DummyContent.DummyItem;
+import com.bumptech.glide.request.target.Target;
+import com.mkorp.newsboard.ArticlesFragment.OnArticleClickedListener;
+import com.mkorp.newsboard.ArticlesFragment.OnBottomReachedListener;
+import com.mkorp.newsboard.R;
 import com.mkorp.newsboard.model.Article;
 
 import java.text.DateFormat;
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnArticleClickedListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHolder> {
 
     private final List<Article> articles;
     private final OnArticleClickedListener onArticleClickedListener;
     private OnBottomReachedListener onBottomReachedListener;
 
-    ArticlesAdapter(List<Article> articles, OnArticleClickedListener onArticleClickedListener) {
+    public ArticlesAdapter(List<Article> articles, OnArticleClickedListener onArticleClickedListener) {
         this.articles = articles;
         this.onArticleClickedListener = onArticleClickedListener;
     }
@@ -48,24 +48,37 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         if (position == (articles.size() - 1) * 2 / 3)
             onBottomReachedListener.onBottomReached(position);
-        RequestOptions requestOptions = new RequestOptions()
-                .error(R.drawable.no_image_available);
 
         Article article = articles.get(position);
         holder.article = article;
-        Glide.with(holder.getContext())
-                .setDefaultRequestOptions(requestOptions)
-                .load(article.getSource().getUrlToImage())
-                .into(holder.sourceImageView);
-        holder.sourceNameView.setText(article.getSource().getName());
+
         holder.articleTitleView.setText(article.getTitle());
 
         Glide.with(holder.getContext())
-                .setDefaultRequestOptions(requestOptions)
+                .setDefaultRequestOptions(new RequestOptions().error(R.drawable.no_image_available))
+                .load(article.getSource().getUrlToImage())
+                .into(holder.sourceImageView);
+        holder.sourceNameView.setText(article.getSource().getName());
+
+        Glide.with(holder.getContext())
                 .load(article.getUrlToImage())
+                .thumbnail(Glide.with(holder.getContext()).load(R.drawable.loading_image))
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        holder.articleImageView.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })
                 .into(holder.articleImageView);
 
-        holder.articleDateView.setText(article.getPublishedAt().toString());
+        DateFormat dateInstance = DateFormat.getDateTimeInstance();
+        holder.articleDateView.setText(dateInstance.format(article.getPublishedAt()));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,12 +97,18 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         return articles.size();
     }
 
-    void loadNextArticles(List<Article> articles) {
+    public void loadNextArticles(List<Article> articles) {
+        notifyItemRangeInserted(0, articles.size());
         this.articles.addAll(articles);
-        notifyDataSetChanged();
     }
 
-    void setOnBottomReachedListener(OnBottomReachedListener onBottomReachedListener) {
+    public void clearArticles()
+    {
+        notifyItemRangeRemoved(0, articles.size());
+        this.articles.clear();
+    }
+
+    public void setOnBottomReachedListener(OnBottomReachedListener onBottomReachedListener) {
         this.onBottomReachedListener = onBottomReachedListener;
     }
 
@@ -113,7 +132,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             articleDateView = view.findViewById(R.id.articleDate);
         }
 
-        public Context getContext(){
+        public Context getContext() {
             return mView.getContext();
         }
     }

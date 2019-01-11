@@ -1,6 +1,10 @@
 package com.mkorp.newsboard.model;
 
 public enum Country{
+    ma,
+    fr,
+    us,
+    gb,
     ae,
     ar,
     at,
@@ -16,8 +20,6 @@ public enum Country{
     cz,
     de,
     eg,
-    fr,
-    gb,
     gr,
     hk,
     hu,
@@ -30,7 +32,6 @@ public enum Country{
     kr,
     lt,
     lv,
-    ma,
     mx,
     my,
     ng,
@@ -52,7 +53,6 @@ public enum Country{
     tr,
     tw,
     ua,
-    us,
     ve,
     za
 }
