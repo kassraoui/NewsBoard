@@ -46,7 +46,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        if (position == (articles.size() - 1) * 2 / 3)
+        if (position == (articles.size() - 1) / 3)
             onBottomReachedListener.onBottomReached(position);
 
         Article article = articles.get(position);
@@ -84,8 +84,6 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 if (null != onArticleClickedListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
                     onArticleClickedListener.onArticleClicked(holder.article);
                 }
             }

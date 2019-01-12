@@ -1,0 +1,7 @@
+<resources>
+    <string name="country_spinner_title">Pays</string>
+    <string name="morocco">Maroc</string>
+    <string name="france">France</string>
+    <string name="usa">USA</string>
+    <string name="uk">Royaume-Uni</string>
+</resources>

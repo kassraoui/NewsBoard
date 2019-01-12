@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.mkorp.newsboard.R;
 import com.mkorp.newsboard.model.Country;
@@ -18,7 +19,7 @@ import java.util.List;
 public class FlagsAdapter extends ArrayAdapter {
     private Country[] countries;
     private Context mContext;
-    private List<Integer> flagResources;
+    private List<CountryResource> flagResources;
 
     public FlagsAdapter(@NonNull Context context, Country[] countries) {
         super(context, R.layout.flag_row);
@@ -27,18 +28,21 @@ public class FlagsAdapter extends ArrayAdapter {
         flagResources = getFlagResources();
     }
 
-    private List<Integer> getFlagResources() {
-        List<Integer> list = new LinkedList<>();
+    private List<CountryResource> getFlagResources() {
+        List<CountryResource> list = new LinkedList<>();
         for (Country country : countries) {
             switch (country) {
                 case ma:
-                    list.add(R.drawable.flag_morocco); break;
+                    list.add(new CountryResource(R.drawable.flag_morocco, R.string.morocco));
+                    break;
                 case fr:
-                    list.add(R.drawable.flag_france); break;
-                case us :
-                    list.add(R.drawable.flag_usa); break;
-                case gb :
-                    list.add(R.drawable.flag_uk);
+                    list.add(new CountryResource(R.drawable.flag_france, R.string.france));
+                    break;
+                case us:
+                    list.add(new CountryResource(R.drawable.flag_usa, R.string.usa));
+                    break;
+                case gb:
+                    list.add(new CountryResource(R.drawable.flag_uk, R.string.uk));
             }
         }
         return list;
@@ -52,27 +56,42 @@ public class FlagsAdapter extends ArrayAdapter {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        ViewHolder mViewHolder = new ViewHolder();
+        FlagViewHolder viewHolder = new FlagViewHolder();
         if (convertView == null) {
-            LayoutInflater mInflater = (LayoutInflater) mContext.
-                    getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = mInflater.inflate(R.layout.flag_row, parent, false);
-            mViewHolder.mFlag = convertView.findViewById(R.id.flagImage);
-            convertView.setTag(mViewHolder);
+            viewHolder.flag = convertView.findViewById(R.id.flagImage);
+            viewHolder.label = convertView.findViewById(R.id.countryName);
+            convertView.setTag(viewHolder);
         } else {
-            mViewHolder = (ViewHolder) convertView.getTag();
+            viewHolder = (FlagViewHolder) convertView.getTag();
         }
 
-        mViewHolder.mFlag.setImageResource(flagResources.get(position));
+        viewHolder.flag.setImageResource(flagResources.get(position).getFlagId());
+        viewHolder.label.setVisibility(View.GONE);
         return convertView;
     }
 
     @Override
     public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        return getView(position, convertView, parent);
+        FlagViewHolder viewHolder = new FlagViewHolder();
+        if (convertView == null) {
+            LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = mInflater.inflate(R.layout.flag_row, parent, false);
+            viewHolder.flag = convertView.findViewById(R.id.flagImage);
+            viewHolder.label = convertView.findViewById(R.id.countryName);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (FlagViewHolder) convertView.getTag();
+        }
+
+        viewHolder.flag.setImageResource(flagResources.get(position).getFlagId());
+        viewHolder.label.setText(flagResources.get(position).getCountryNameId());
+        return convertView;
     }
 
-    private static class ViewHolder {
-        ImageView mFlag;
+    private static class FlagViewHolder {
+        TextView label;
+        ImageView flag;
     }
 }

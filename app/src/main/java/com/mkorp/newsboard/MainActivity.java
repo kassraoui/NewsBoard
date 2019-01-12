@@ -3,12 +3,12 @@ package com.mkorp.newsboard;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
 
     private ProgressBar progressBar;
     private ArticlesFragment articlesFragment;
+    private boolean isUserInteracting;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -49,8 +50,6 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
             return false;
         }
     };
-    private RecyclerView.AdapterDataObserver adapterDataObserver;
-    private boolean isUserInteracting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
         setContentView(R.layout.activity_main);
 
         progressBar = findViewById(R.id.progress);
-        adapterDataObserver = new RecyclerView.AdapterDataObserver() {
+        RecyclerView.AdapterDataObserver adapterDataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 progressBar.setVisibility(View.GONE);
@@ -82,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
         getMenuInflater().inflate(R.menu.android_action_bar_spinner_menu, menu);
 
         MenuItem item = menu.findItem(R.id.spinner);
-        Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
+        Spinner spinner = (Spinner) item.getActionView();
 
 
         final Country[] countries = {Country.ma, Country.fr, Country.us, Country.gb};
@@ -90,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
         flagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinner.setAdapter(flagsAdapter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            spinner.setPopupBackgroundResource(R.color.backgroundAliceBlue);
+        }
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -97,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
                 if (isUserInteracting)
                     articlesFragment.setCountry(countries[i]);
             }
-
             @Override
             public void onNothingSelected(AdapterView adapterView) {
             }
@@ -126,9 +127,5 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
                         activity.startActivity(intent);
                     }
                 });
-    }
-
-    public void OnCountrySelected(Country country) {
-
     }
 }
