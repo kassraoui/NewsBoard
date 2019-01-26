@@ -8,7 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-public class Article {
+public class Article implements ArticleItem{
+    public static final int ARTICLE_TYPE = 0;
     private final Source source;
     private final String title;
     private final String description;
@@ -80,5 +81,10 @@ public class Article {
 
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public int getItemType() {
+        return ARTICLE_TYPE;
     }
 }

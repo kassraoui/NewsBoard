@@ -13,4 +13,5 @@
     <string name="entertainment">Divertissement</string>
     <string name="sports">Sports</string>
     <string name="science">Science</string>
+    <string name="no_more_articles_found">Pas d\'articles supplémentaire</string>
 </resources>

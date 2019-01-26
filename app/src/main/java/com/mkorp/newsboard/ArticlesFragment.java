@@ -23,7 +23,6 @@ import com.mkorp.newsboard.model.NewsApiService;
 import com.mkorp.newsboard.model.RetrofitFactory;
 import com.mkorp.newsboard.model.Status;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -52,16 +51,17 @@ public class ArticlesFragment extends Fragment {
     public static final String HOME_TAG = "HomeArticlesFragment";
     public static final String SEARCH_TAG = "SearchArticlesFragment";
     public static final String CATEGORY_TAG = "CategoryArticlesFragment";
+    private boolean lastPageReached;
 
-    public void setCountry(Country country)
-    {
+    public void setCountry(Country country) {
         page = 0;
+        lastPageReached = false;
         this.country = country;
     }
 
-    public void setCategory(Category category)
-    {
+    public void setCategory(Category category) {
         page = 0;
+        lastPageReached = false;
         this.category = category;
     }
 
@@ -73,7 +73,8 @@ public class ArticlesFragment extends Fragment {
         category = Category.general;
         country = Country.ma;
         page = 0;
-        adapter = new ArticlesAdapter(new ArrayList<Article>());
+        lastPageReached = false;
+        adapter = new ArticlesAdapter();
         retrofit = new RetrofitFactory().create(Api.NewsApi);
         API_KEY = new RetrofitFactory().getApiKey(Api.NewsApi);
     }
@@ -82,11 +83,13 @@ public class ArticlesFragment extends Fragment {
         return new ArticlesFragment();
     }
 
-    public void clearAllArticles()
-    {
+    public void clearAllArticles() {
         adapter.clearArticles();
     }
+
     public void loadNextArticles() {
+        if (lastPageReached)
+            return;
         NewsApiService newsService = retrofit.create(NewsApiService.class);
         Call<ApiResponse> call = newsService.getArticles(country, category, ++page, API_KEY);
         call.enqueue(new Callback<ApiResponse>() {
@@ -95,10 +98,12 @@ public class ArticlesFragment extends Fragment {
                 ApiResponse apiResponse = response.body();
                 if (apiResponse != null && apiResponse.getStatus() == Status.ok) {
                     List<Article> articles = apiResponse.getArticles();
-                    if (articles.size() == 0)
+                    if (articles.size() == 0) {
+                        lastPageReached = true;
+                        adapter.notifyLastPageReached();
                         Toast.makeText(getContext(), "No more articles found", Toast.LENGTH_LONG).show();
-                    else
-                        adapter.loadNextArticles(articles);
+                    } else
+                        adapter.loadNextArticles(articles, category);
                 } else {
                     Log.e(HOME_TAG, String.format("Failed to request NewsApi : %s", apiResponse != null ? apiResponse.getMessage() : ""));
                     Toast.makeText(getContext(), "Failed to request NewsApi", Toast.LENGTH_LONG).show();
@@ -146,6 +151,7 @@ public class ArticlesFragment extends Fragment {
             public void onRefresh() {
                 adapter.clearArticles();
                 page = 0;
+                lastPageReached = false;
                 loadNextArticles();
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -197,6 +203,7 @@ public class ArticlesFragment extends Fragment {
 
     public interface OnArticlesChangedListener {
         void onArticleRangeInserted(int positionStart, int itemCount);
+
         void onArticleRangeRemoved(int positionStart, int itemCount);
     }
 }

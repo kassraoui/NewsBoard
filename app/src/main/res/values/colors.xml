@@ -8,4 +8,6 @@
     <color name="textGrey">#7b7b7b</color>
     <color name="view_yellow">#f4b400</color>
     <color name="backgroundAliceBlue">#EFEFEF</color>
+    <color name="viewYellow">#f4b400</color>
+    <color name="textWhite">#f2f2f2</color>
 </resources>

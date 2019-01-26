@@ -25,7 +25,8 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/usatoday"/>
+                android:src="@drawable/usatoday"
+                android:contentDescription="@string/source_logo" />
 
             <TextView
                 android:id="@+id/sourceName"
