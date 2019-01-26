@@ -1,7 +1,16 @@
 <resources>
+    <string name="title_home">Accueil</string>
+    <string name="title_categories">Categories</string>
+    <string name="title_search">Recherche</string>
     <string name="country_spinner_title">Pays</string>
     <string name="morocco">Maroc</string>
     <string name="france">France</string>
     <string name="usa">USA</string>
     <string name="uk">Royaume-Uni</string>
+    <string name="technology">Technologie</string>
+    <string name="business">Business</string>
+    <string name="health">Santé</string>
+    <string name="entertainment">Divertissement</string>
+    <string name="sports">Sports</string>
+    <string name="science">Science</string>
 </resources>

@@ -14,11 +14,13 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.mkorp.newsboard.adapters.ArticlesAdapter;
+import com.mkorp.newsboard.model.Api;
 import com.mkorp.newsboard.model.ApiResponse;
 import com.mkorp.newsboard.model.Article;
 import com.mkorp.newsboard.model.Category;
 import com.mkorp.newsboard.model.Country;
 import com.mkorp.newsboard.model.NewsApiService;
+import com.mkorp.newsboard.model.RetrofitFactory;
 import com.mkorp.newsboard.model.Status;
 
 import java.util.ArrayList;
@@ -28,38 +30,39 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
- * A fragment representing a list of Items.
+ * A fragment representing a list of Articles.
  * <p/>
  * Activities containing this fragment MUST implement the {@link OnArticleClickedListener}
  * interface.
  */
 public class ArticlesFragment extends Fragment {
 
-    private OnArticleClickedListener onArticleClickedListener;
-    private RecyclerView.AdapterDataObserver adapterDataObserver;
-    private Retrofit retrofit;
+    private final Retrofit retrofit;
+    private final ArticlesAdapter adapter;
+    private final String API_KEY;
+
     private int page;
-    private ArticlesAdapter adapter;
-    public static final String TAG = "HomeFragment";
-    private String API_KEY;
     private Country country;
     private Category category;
+    private OnArticleClickedListener onArticleClickedListener;
+    private OnArticlesChangedListener onArticlesChangedListener;
 
-    public void setCountry(Country country) {
-        adapter.clearArticles();
+    public static final String HOME_TAG = "HomeArticlesFragment";
+    public static final String SEARCH_TAG = "SearchArticlesFragment";
+    public static final String CATEGORY_TAG = "CategoryArticlesFragment";
+
+    public void setCountry(Country country)
+    {
         page = 0;
         this.country = country;
-        loadNextHeadlines();
     }
 
-    public void setCategory(Category category) {
-        adapter.clearArticles();
+    public void setCategory(Category category)
+    {
         page = 0;
         this.category = category;
-        loadNextHeadlines();
     }
 
     /**
@@ -70,15 +73,20 @@ public class ArticlesFragment extends Fragment {
         category = Category.general;
         country = Country.ma;
         page = 0;
+        adapter = new ArticlesAdapter(new ArrayList<Article>());
+        retrofit = new RetrofitFactory().create(Api.NewsApi);
+        API_KEY = new RetrofitFactory().getApiKey(Api.NewsApi);
     }
 
-    public static ArticlesFragment newInstance(RecyclerView.AdapterDataObserver adapterDataObserver) {
-        ArticlesFragment homeFragment = new ArticlesFragment();
-        homeFragment.adapterDataObserver = adapterDataObserver;
-        return homeFragment;
+    public static ArticlesFragment newInstance() {
+        return new ArticlesFragment();
     }
 
-    public void loadNextHeadlines() {
+    public void clearAllArticles()
+    {
+        adapter.clearArticles();
+    }
+    public void loadNextArticles() {
         NewsApiService newsService = retrofit.create(NewsApiService.class);
         Call<ApiResponse> call = newsService.getArticles(country, category, ++page, API_KEY);
         call.enqueue(new Callback<ApiResponse>() {
@@ -92,32 +100,22 @@ public class ArticlesFragment extends Fragment {
                     else
                         adapter.loadNextArticles(articles);
                 } else {
-                    Log.e(TAG, String.format("Failed to request NewsApi : %s", apiResponse != null ? apiResponse.getMessage() : ""));
+                    Log.e(HOME_TAG, String.format("Failed to request NewsApi : %s", apiResponse != null ? apiResponse.getMessage() : ""));
                     Toast.makeText(getContext(), "Failed to request NewsApi", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
-                Log.e(TAG, t.toString());
+                Log.e(HOME_TAG, t.toString());
                 Toast.makeText(getContext(), "Failed to request NewsApi", Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    public void connectAndGetApiData() {
-        if (retrofit == null) {
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(getResources().getString(R.string.base_url))
-                    .addConverterFactory(JacksonConverterFactory.create())
-                    .build();
-        }
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        connectAndGetApiData();
     }
 
     @Override
@@ -126,22 +124,21 @@ public class ArticlesFragment extends Fragment {
 
         final SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         final RecyclerView recyclerView = view.findViewById(R.id.list);
-        API_KEY = getResources().getString(R.string.api_key);
 
         Context context = view.getContext();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        adapter = new ArticlesAdapter(new ArrayList<Article>(), onArticleClickedListener);
-        adapter.registerAdapterDataObserver(adapterDataObserver);
         final OnBottomReachedListener onBottomReachedListener = new OnBottomReachedListener() {
             @Override
             public void onBottomReached(int position) {
-                loadNextHeadlines();
+                loadNextArticles();
             }
         };
-        loadNextHeadlines();
+        loadNextArticles();
         adapter.setOnBottomReachedListener(onBottomReachedListener);
+        adapter.setOnArticleClickedListener(onArticleClickedListener);
+        adapter.setOnArticlesChangedListener(onArticlesChangedListener);
         recyclerView.setAdapter(adapter);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -149,7 +146,7 @@ public class ArticlesFragment extends Fragment {
             public void onRefresh() {
                 adapter.clearArticles();
                 page = 0;
-                loadNextHeadlines();
+                loadNextArticles();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -165,6 +162,12 @@ public class ArticlesFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnArticleClickedListener");
+        }
+        if (context instanceof OnArticlesChangedListener) {
+            onArticlesChangedListener = (OnArticlesChangedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnArticlesChangedListener");
         }
     }
 
@@ -190,5 +193,10 @@ public class ArticlesFragment extends Fragment {
 
     public interface OnBottomReachedListener {
         void onBottomReached(int position);
+    }
+
+    public interface OnArticlesChangedListener {
+        void onArticleRangeInserted(int positionStart, int itemCount);
+        void onArticleRangeRemoved(int positionStart, int itemCount);
     }
 }

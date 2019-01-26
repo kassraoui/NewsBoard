@@ -17,6 +17,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.mkorp.newsboard.ArticlesFragment;
 import com.mkorp.newsboard.ArticlesFragment.OnArticleClickedListener;
 import com.mkorp.newsboard.ArticlesFragment.OnBottomReachedListener;
 import com.mkorp.newsboard.R;
@@ -28,12 +29,11 @@ import java.util.List;
 public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHolder> {
 
     private final List<Article> articles;
-    private final OnArticleClickedListener onArticleClickedListener;
+    private OnArticleClickedListener onArticleClickedListener;
     private OnBottomReachedListener onBottomReachedListener;
 
-    public ArticlesAdapter(List<Article> articles, OnArticleClickedListener onArticleClickedListener) {
+    public ArticlesAdapter(List<Article> articles) {
         this.articles = articles;
-        this.onArticleClickedListener = onArticleClickedListener;
     }
 
     @NonNull
@@ -62,14 +62,12 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
 
         Glide.with(holder.getContext())
                 .load(article.getUrlToImage())
-                .thumbnail(Glide.with(holder.getContext()).load(R.drawable.loading_image))
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         holder.articleImageView.setVisibility(View.GONE);
                         return false;
                     }
-
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                         return false;
@@ -105,9 +103,23 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         notifyItemRangeRemoved(0, articles.size());
         this.articles.clear();
     }
-
     public void setOnBottomReachedListener(OnBottomReachedListener onBottomReachedListener) {
         this.onBottomReachedListener = onBottomReachedListener;
+    }
+    public void setOnArticleClickedListener(OnArticleClickedListener onArticleClickedListener) {
+        this.onArticleClickedListener = onArticleClickedListener;
+    }
+    public void setOnArticlesChangedListener(final ArticlesFragment.OnArticlesChangedListener onArticlesChangedListener){
+        registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                onArticlesChangedListener.onArticleRangeInserted(positionStart, itemCount);
+            }
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                onArticlesChangedListener.onArticleRangeRemoved(positionStart, itemCount);
+            }
+        });
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -129,8 +141,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             articleImageView = view.findViewById(R.id.articleImage);
             articleDateView = view.findViewById(R.id.articleDate);
         }
-
-        public Context getContext() {
+        Context getContext() {
             return mView.getContext();
         }
     }

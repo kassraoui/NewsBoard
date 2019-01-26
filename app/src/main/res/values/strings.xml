@@ -1,20 +1,25 @@
 <resources>
-    <string name="app_name">NewsBoard</string>
+    <string translatable="false" name="app_name">NewsBoard</string>
+    <string translatable="false" name="usaToday">usa today</string>
+    <string translatable="false" name="article_title">Bitcoin\'s value drops to more than one-year low during big cryptocurrency sell-off</string>
+    <string translatable="false" name="article_date">2018–11–25</string>
+    <string translatable="false" name="source_logo">SourceLogo</string>
+    <string translatable="false" name="more_logo">moreLogo</string>
+    <string translatable="false" name="article_image">article_image</string>
+    <string translatable="false" name="article_image_desc">article image</string>
+    <string translatable="false" name="category_image">Category Image</string>
     <string name="title_home">Home</string>
     <string name="title_categories">Categories</string>
-    <string name="title_settings">Settings</string>
-    <string name="usaToday">usa today</string>
-    <string name="article_title">Bitcoin\'s value drops to more than one-year low during big cryptocurrency sell-off</string>
-    <string name="article_date">2018–11–25</string>
-    <string name="base_url">https://newsapi.org/v2/</string>
-    <string name="api_key">6e0c897063c440f985a7b7d34f913693</string>
-    <string name="source_logo">SourceLogo</string>
-    <string name="more_logo">moreLogo</string>
-    <string name="article_image">article_image</string>
-    <string name="article_image_desc">article image</string>
+    <string name="title_search">Search</string>
     <string name="country_spinner_title">Country</string>
     <string name="morocco">Morocco</string>
     <string name="france">France</string>
     <string name="usa">USA</string>
     <string name="uk">United Kingdom</string>
+    <string name="technology">Technology</string>
+    <string name="business">Business</string>
+    <string name="health">Health</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="sports">Sports</string>
+    <string name="science">Science</string>
 </resources>
