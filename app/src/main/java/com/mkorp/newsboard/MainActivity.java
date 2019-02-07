@@ -1,10 +1,12 @@
 package com.mkorp.newsboard;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.SearchRecentSuggestions;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.BottomNavigationView;
@@ -28,8 +30,8 @@ import com.mkorp.newsboard.model.Country;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements ArticlesFragment.OnArticleClickedListener, CategoryFragment.OnCategoryClickedListener, ArticlesFragment.OnArticlesChangedListener {
-
+public class MainActivity extends AppCompatActivity implements ArticlesFragment.OnArticleClickedListener,
+        CategoryFragment.OnCategoryClickedListener, ArticlesFragment.OnArticlesChangedListener {
 
     private ProgressBar progressBar;
     private boolean isUserInteracting;
@@ -44,14 +46,17 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+                    countrySpinner.setVisibility(View.VISIBLE);
                     currentArticlesFragmentTag = ArticlesFragment.HOME_TAG;
                     return replaceFragment(ArticlesFragment.HOME_TAG, false);
                 case R.id.navigation_categories:
+                    countrySpinner.setVisibility(View.VISIBLE);
                     currentArticlesFragmentTag = ArticlesFragment.CATEGORY_TAG;
                     return replaceFragment(CategoryFragment.TAG, false);
                 case R.id.navigation_search:
+                    countrySpinner.setVisibility(View.GONE);
                     currentArticlesFragmentTag = ArticlesFragment.SEARCH_TAG;
-                    return true;
+                    return replaceFragment(ArticlesFragment.SEARCH_TAG, false);
             }
             return false;
         }
@@ -60,11 +65,11 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
     private void commit(Fragment fragment, String tag, FragmentManager manager, boolean addToBackStack) {
         if (addToBackStack)
             manager.beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_left)
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_out, R.anim.fade_in)
                     .replace(R.id.frame, fragment, tag).addToBackStack(null).commit();
         else
             manager.beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_left)
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_out, R.anim.fade_in)
                     .replace(R.id.frame, fragment, tag).commit();
     }
 
@@ -86,6 +91,21 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
         return true;
     }
 
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            SearchArticleFragment searchFragment = (SearchArticleFragment) fragmentsByTag.get(SearchArticleFragment.TAG);
+            if (searchFragment == null) {
+                Log.e("MainActivity", "Search Fragment not instantiated");
+                return;
+            }
+            searchFragment.searchArticles(query);
+            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+                    SuggestionsProvider.AUTHORITY, SuggestionsProvider.MODE);
+            suggestions.saveRecentQuery(query, null);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,13 +114,21 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
         progressBar = findViewById(R.id.progress);
 
         fragmentsByTag = new HashMap<>();
-        fragmentsByTag.put(ArticlesFragment.HOME_TAG, ArticlesFragment.newInstance());
+        fragmentsByTag.put(ArticlesFragment.HOME_TAG, ArticlesFragment.newInstance(false));
         fragmentsByTag.put(CategoryFragment.TAG, CategoryFragment.newInstance(1));
+        fragmentsByTag.put(SearchArticleFragment.TAG, SearchArticleFragment.newInstance());
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         replaceFragment(ArticlesFragment.HOME_TAG, false);
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
     }
 
     @Override
@@ -129,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
                     currentArticleFragments.setCountry(countries[i]);
                     currentArticleFragments.clearAllArticles();
                     currentArticleFragments.loadNextArticles();
-
                 }
             }
 
@@ -167,14 +194,14 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
     public void onCategoryClicked(Category category) {
         ArticlesFragment articlesCategoryFragment;
         if (!fragmentsByTag.containsKey(ArticlesFragment.CATEGORY_TAG)) {
-            articlesCategoryFragment = ArticlesFragment.newInstance();
+            articlesCategoryFragment = ArticlesFragment.newInstance(false);
             fragmentsByTag.put(ArticlesFragment.CATEGORY_TAG, articlesCategoryFragment);
         } else
             articlesCategoryFragment = (ArticlesFragment) fragmentsByTag.get(ArticlesFragment.CATEGORY_TAG);
         assert articlesCategoryFragment != null;
         articlesCategoryFragment.setCategory(category);
         articlesCategoryFragment.setCountry(countries[countrySpinner.getSelectedItemPosition()]);
-        if(replaceFragment(ArticlesFragment.CATEGORY_TAG, true)){
+        if (replaceFragment(ArticlesFragment.CATEGORY_TAG, true)) {
             articlesCategoryFragment.clearAllArticles();
             articlesCategoryFragment.loadNextArticles();
         }

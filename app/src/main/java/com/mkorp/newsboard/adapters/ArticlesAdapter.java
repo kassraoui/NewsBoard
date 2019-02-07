@@ -68,7 +68,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        if (position == (articles.size() - 1) / 3)
+        if (articles.size() > 3 && position == (articles.size() - 1) / 3)
             onBottomReachedListener.onBottomReached(position);
 
         switch (holder.getItemViewType()) {
@@ -130,11 +130,12 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         if (size == 0)
             this.articles.add(new FirstArticleItem(category));
         this.articles.addAll(articles);
-        notifyItemRangeInserted(size, articles.size());
+        notifyItemRangeInserted(size, this.articles.size());
     }
 
     public void clearArticles() {
-        notifyItemRangeRemoved(0, articles.size());
+        notifyItemRangeRemoved(0, 100);
+
         this.articles.clear();
     }
 

@@ -6,12 +6,12 @@ public class CategoriesGenerator {
 
     public static CategoryCard[] getCategories() {
         return new CategoryCard[]{
-                new CategoryCard(Category.business, R.drawable.business, R.string.business),
-                new CategoryCard(Category.technology, R.drawable.technology, R.string.technology),
-                new CategoryCard(Category.sports, R.drawable.sports, R.string.sports),
-                new CategoryCard(Category.science, R.drawable.science, R.string.science),
-                new CategoryCard(Category.health, R.drawable.health, R.string.health),
-                new CategoryCard(Category.entertainment, R.drawable.entertainment, R.string.entertainment)
+                new CategoryCard(Category.Business, R.drawable.business, R.string.business),
+                new CategoryCard(Category.Technology, R.drawable.technology, R.string.technology),
+                new CategoryCard(Category.Sports, R.drawable.sports, R.string.sports),
+                new CategoryCard(Category.Science, R.drawable.science, R.string.science),
+                new CategoryCard(Category.Health, R.drawable.health, R.string.health),
+                new CategoryCard(Category.Entertainment, R.drawable.entertainment, R.string.entertainment)
         };
     }
 

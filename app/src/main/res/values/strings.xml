@@ -1,13 +1,13 @@
 <resources>
-    <string translatable="false" name="app_name">NewsBoard</string>
-    <string translatable="false" name="usaToday">usa today</string>
-    <string translatable="false" name="article_title">Bitcoin\'s value drops to more than one-year low during big cryptocurrency sell-off</string>
-    <string translatable="false" name="article_date">2018–11–25</string>
-    <string translatable="false" name="source_logo">SourceLogo</string>
-    <string translatable="false" name="more_logo">moreLogo</string>
-    <string translatable="false" name="article_image">article_image</string>
-    <string translatable="false" name="article_image_desc">article image</string>
-    <string translatable="false" name="category_image">Category Image</string>
+    <string name="app_name" translatable="false">NewsBoard</string>
+    <string name="usaToday" translatable="false">usa today</string>
+    <string name="article_title" translatable="false">Bitcoin\'s value drops to more than one-year low during big cryptocurrency sell-off</string>
+    <string name="article_date" translatable="false">2018–11–25</string>
+    <string name="source_logo" translatable="false">SourceLogo</string>
+    <string name="more_logo" translatable="false">moreLogo</string>
+    <string name="article_image" translatable="false">article_image</string>
+    <string name="article_image_desc" translatable="false">article image</string>
+    <string name="category_image" translatable="false">Category Image</string>
     <string name="title_home">Home</string>
     <string name="title_categories">Categories</string>
     <string name="title_search">Search</string>
@@ -23,4 +23,8 @@
     <string name="sports">Sports</string>
     <string name="science">Science</string>
     <string name="no_more_articles_found">No more articles found</string>
+    <string name="search_hint">Search for articles</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -9,17 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.mkorp.newsboard.CategoryFragment;
 import com.mkorp.newsboard.CategoryFragment.OnCategoryClickedListener;
 import com.mkorp.newsboard.R;
 import com.mkorp.newsboard.model.CategoriesGenerator.CategoryCard;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link CategoryCard} and makes a call to the
- * specified {@link CategoryFragment.OnCategoryClickedListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
     private final CategoryCard[] mValues;
@@ -42,7 +36,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(@NonNull final CategoryViewHolder holder, int position) {
         holder.item = mValues[position];
         Glide.with(holder.mView.getContext())
-                .setDefaultRequestOptions(new RequestOptions().error(R.drawable.no_image_available))
                 .load(mValues[position].imageId)
                 .into(holder.imageView);
         holder.textView.setText(mValues[position].labelId);

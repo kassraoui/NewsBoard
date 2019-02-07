@@ -23,6 +23,7 @@ import com.mkorp.newsboard.model.NewsApiService;
 import com.mkorp.newsboard.model.RetrofitFactory;
 import com.mkorp.newsboard.model.Status;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,6 +39,7 @@ import retrofit2.Retrofit;
  */
 public class ArticlesFragment extends Fragment {
 
+    private static final String ARG_FOR_SEARCH = "for-search";
     private final Retrofit retrofit;
     private final ArticlesAdapter adapter;
     private final String API_KEY;
@@ -45,6 +47,8 @@ public class ArticlesFragment extends Fragment {
     private int page;
     private Country country;
     private Category category;
+    private String searchKeywords;
+    private boolean forSearch;
     private OnArticleClickedListener onArticleClickedListener;
     private OnArticlesChangedListener onArticlesChangedListener;
 
@@ -65,33 +69,55 @@ public class ArticlesFragment extends Fragment {
         this.category = category;
     }
 
+    public void setSearchKeyword(String searchKeywords) {
+        page = 0;
+        lastPageReached = false;
+        category = Category.Search;
+        this.searchKeywords = searchKeywords;
+    }
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
     public ArticlesFragment() {
-        category = Category.general;
+        category = Category.General;
         country = Country.ma;
         page = 0;
         lastPageReached = false;
         adapter = new ArticlesAdapter();
-        retrofit = new RetrofitFactory().create(Api.NewsApi);
-        API_KEY = new RetrofitFactory().getApiKey(Api.NewsApi);
+        RetrofitFactory retrofitFactory = new RetrofitFactory();
+        retrofit = retrofitFactory.create(Api.NewsApi);
+        API_KEY = retrofitFactory.getApiKey(Api.NewsApi);
     }
 
-    public static ArticlesFragment newInstance() {
-        return new ArticlesFragment();
+    public static ArticlesFragment newInstance(boolean forSearch) {
+        ArticlesFragment fragment = new ArticlesFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_FOR_SEARCH, forSearch);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public void clearAllArticles() {
         adapter.clearArticles();
     }
 
+    private Call<ApiResponse> callApiService() {
+        NewsApiService newsService = retrofit.create(NewsApiService.class);
+        if (!forSearch)
+            return newsService.getArticles(country, category, ++page, API_KEY);
+        return newsService.searchArticles(searchKeywords, ++page, API_KEY);
+    }
+
     public void loadNextArticles() {
         if (lastPageReached)
             return;
-        NewsApiService newsService = retrofit.create(NewsApiService.class);
-        Call<ApiResponse> call = newsService.getArticles(country, category, ++page, API_KEY);
+        if ((searchKeywords == null && forSearch)){
+            adapter.loadNextArticles(new ArrayList<Article>(), category);
+            return;
+        }
+        Call<ApiResponse> call = callApiService();
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
@@ -101,7 +127,6 @@ public class ArticlesFragment extends Fragment {
                     if (articles.size() == 0) {
                         lastPageReached = true;
                         adapter.notifyLastPageReached();
-                        Toast.makeText(getContext(), "No more articles found", Toast.LENGTH_LONG).show();
                     } else
                         adapter.loadNextArticles(articles, category);
                 } else {
@@ -121,6 +146,11 @@ public class ArticlesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            forSearch = getArguments().getBoolean(ARG_FOR_SEARCH);
+            if(forSearch)
+                category = Category.Search;
+        }
     }
 
     @Override
