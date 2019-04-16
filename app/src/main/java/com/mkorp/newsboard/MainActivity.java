@@ -26,6 +26,7 @@ import com.mkorp.newsboard.customTabs.CustomTabActivityHelper;
 import com.mkorp.newsboard.model.Article;
 import com.mkorp.newsboard.model.Category;
 import com.mkorp.newsboard.model.Country;
+import com.mkorp.newsboard.model.CountryLocator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
     private String currentArticlesFragmentTag = ArticlesFragment.HOME_TAG;
     private Spinner countrySpinner;
     private final Country[] countries = {Country.ma, Country.fr, Country.us, Country.gb};
+    private Country currentCountry;
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -113,8 +116,11 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
 
         progressBar = findViewById(R.id.progress);
 
+        CountryLocator cl = new CountryLocator(getApplicationContext());
+        currentCountry = cl.getCountry();
+
         fragmentsByTag = new HashMap<>();
-        fragmentsByTag.put(ArticlesFragment.HOME_TAG, ArticlesFragment.newInstance(false));
+        fragmentsByTag.put(ArticlesFragment.HOME_TAG, ArticlesFragment.newInstance(currentCountry, false));
         fragmentsByTag.put(CategoryFragment.TAG, CategoryFragment.newInstance(1));
         fragmentsByTag.put(SearchArticleFragment.TAG, SearchArticleFragment.newInstance());
 
@@ -146,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             countrySpinner.setPopupBackgroundResource(R.color.backgroundAliceBlue);
         }
+        int position = flagsAdapter.getPosition(currentCountry);
+        countrySpinner.setSelection(position);
 
         countrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -194,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements ArticlesFragment.
     public void onCategoryClicked(Category category) {
         ArticlesFragment articlesCategoryFragment;
         if (!fragmentsByTag.containsKey(ArticlesFragment.CATEGORY_TAG)) {
-            articlesCategoryFragment = ArticlesFragment.newInstance(false);
+            articlesCategoryFragment = ArticlesFragment.newInstance(currentCountry, false);
             fragmentsByTag.put(ArticlesFragment.CATEGORY_TAG, articlesCategoryFragment);
         } else
             articlesCategoryFragment = (ArticlesFragment) fragmentsByTag.get(ArticlesFragment.CATEGORY_TAG);

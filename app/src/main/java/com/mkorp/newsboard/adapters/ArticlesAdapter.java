@@ -115,9 +115,23 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
             case FirstArticleItem.FIRST_ARTICLE_TYPE:
                 final FirstArticleItem categoryItem = (FirstArticleItem) articles.get(position);
                 FirstViewHolder firstHolder = (FirstViewHolder) holder;
-                firstHolder.categoryTextView.setText(categoryItem.getCategory().toString());
+                firstHolder.categoryTextView.setText(categoryToNiceString(categoryItem.getCategory(), holder.getContext()));
                 break;
         }
+    }
+
+    private String categoryToNiceString(Category category, Context context){
+        switch (category){
+            case Business: return context.getResources().getString(R.string.business);
+            case Entertainment: return context.getResources().getString(R.string.entertainment);
+            case General: return context.getResources().getString(R.string.topHeadlines);
+            case Health: return context.getResources().getString(R.string.health);
+            case Science: return context.getResources().getString(R.string.science);
+            case Sports: return context.getResources().getString(R.string.sports);
+            case Technology: return context.getResources().getString(R.string.technology);
+            case Search: return context.getResources().getString(R.string.title_search);
+        }
+        return Category.General.toString();
     }
 
     @Override

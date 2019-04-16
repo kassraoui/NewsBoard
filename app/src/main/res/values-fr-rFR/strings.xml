@@ -15,4 +15,6 @@
     <string name="science">Science</string>
     <string name="no_more_articles_found">Pas d\'articles supplémentaire</string>
     <string name="search_hint">Rechercher un article</string>
+    <string name="topHeadlines">À la une</string>
+    <string name="go_to_top">Haut de la page</string>
 </resources>

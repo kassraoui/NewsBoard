@@ -48,6 +48,16 @@ public class FlagsAdapter extends ArrayAdapter {
         return list;
     }
 
+    public int getPosition(Country country) {
+        int i = 0;
+        for (Country cty : countries) {
+            if (cty == country)
+                return i;
+            i++;
+        }
+        return i;
+    }
+
     @Override
     public int getCount() {
         return countries.length;

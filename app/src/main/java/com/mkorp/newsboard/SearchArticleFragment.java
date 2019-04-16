@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import com.mkorp.newsboard.model.Country;
+
 public class SearchArticleFragment extends Fragment {
 
     public static final String TAG = "SearchArticlesFragment";
@@ -25,7 +27,7 @@ public class SearchArticleFragment extends Fragment {
         return new SearchArticleFragment();
     }
 
-    public void searchArticles(String keywords){
+    public void searchArticles(String keywords) {
         articlesFragment.clearAllArticles();
         articlesFragment.setSearchKeyword(keywords);
         articlesFragment.loadNextArticles();
@@ -47,10 +49,9 @@ public class SearchArticleFragment extends Fragment {
             return view;
         searchView.setSearchableInfo(searchManager.getSearchableInfo(activity.getComponentName()));
         searchView.setQueryRefinementEnabled(true);
-
-        articlesFragment = ArticlesFragment.newInstance(true);
+        articlesFragment = ArticlesFragment.newInstance(Country.ma, true);
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.add(R.id.childArticlesFragment, articlesFragment ).commit();
+        transaction.add(R.id.childArticlesFragment, articlesFragment).commit();
         return view;
     }
 

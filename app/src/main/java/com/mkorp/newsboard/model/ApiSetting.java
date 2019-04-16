@@ -3,17 +3,17 @@ package com.mkorp.newsboard.model;
 class ApiSetting {
 
     private final String baseUrl;
-    private final String apiKey;
+    private final String[] apiKeys;
 
-    ApiSetting(String baseUrl, String apiKey) {
+    ApiSetting(String baseUrl, String[] apiKeys) {
         this.baseUrl = baseUrl;
-        this.apiKey = apiKey;
+        this.apiKeys = apiKeys;
     }
 
     String getBaseUrl() {
         return baseUrl;
     }
-    String getApiKey() {
-        return apiKey;
+    String[] getApiKeys() {
+        return apiKeys;
     }
 }

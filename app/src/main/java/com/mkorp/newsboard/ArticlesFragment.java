@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.mkorp.newsboard.adapters.ArticlesAdapter;
@@ -30,6 +31,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import ru.dimorinny.floatingtextbutton.FloatingTextButton;
 
 /**
  * A fragment representing a list of Articles.
@@ -40,9 +42,10 @@ import retrofit2.Retrofit;
 public class ArticlesFragment extends Fragment {
 
     private static final String ARG_FOR_SEARCH = "for-search";
+    private static final String ARG_DEFAULT_COUNTRY = "defaultCountry";
     private final Retrofit retrofit;
     private final ArticlesAdapter adapter;
-    private final String API_KEY;
+    private final RetrofitFactory retrofitFactory;
 
     private int page;
     private Country country;
@@ -82,19 +85,18 @@ public class ArticlesFragment extends Fragment {
      */
     public ArticlesFragment() {
         category = Category.General;
-        country = Country.ma;
         page = 0;
         lastPageReached = false;
         adapter = new ArticlesAdapter();
-        RetrofitFactory retrofitFactory = new RetrofitFactory();
-        retrofit = retrofitFactory.create(Api.NewsApi);
-        API_KEY = retrofitFactory.getApiKey(Api.NewsApi);
+        retrofitFactory = new RetrofitFactory(Api.NewsApi);
+        retrofit = retrofitFactory.create();
     }
 
-    public static ArticlesFragment newInstance(boolean forSearch) {
+    public static ArticlesFragment newInstance(Country defaultCountry, boolean forSearch) {
         ArticlesFragment fragment = new ArticlesFragment();
         Bundle args = new Bundle();
         args.putBoolean(ARG_FOR_SEARCH, forSearch);
+        args.putSerializable(ARG_DEFAULT_COUNTRY, defaultCountry);
         fragment.setArguments(args);
         return fragment;
     }
@@ -106,14 +108,14 @@ public class ArticlesFragment extends Fragment {
     private Call<ApiResponse> callApiService() {
         NewsApiService newsService = retrofit.create(NewsApiService.class);
         if (!forSearch)
-            return newsService.getArticles(country, category, ++page, API_KEY);
-        return newsService.searchArticles(searchKeywords, ++page, API_KEY);
+            return newsService.getArticles(country, category, ++page, retrofitFactory.getApiKey());
+        return newsService.searchArticles(searchKeywords, ++page, retrofitFactory.getApiKey());
     }
 
     public void loadNextArticles() {
         if (lastPageReached)
             return;
-        if ((searchKeywords == null && forSearch)){
+        if ((searchKeywords == null && forSearch)) {
             adapter.loadNextArticles(new ArrayList<Article>(), category);
             return;
         }
@@ -146,9 +148,11 @@ public class ArticlesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            forSearch = getArguments().getBoolean(ARG_FOR_SEARCH);
-            if(forSearch)
+        Bundle args = getArguments();
+        if (args != null) {
+            forSearch = args.getBoolean(ARG_FOR_SEARCH);
+            country = (Country) args.getSerializable(ARG_DEFAULT_COUNTRY);
+            if (forSearch)
                 category = Category.Search;
         }
     }
@@ -159,6 +163,7 @@ public class ArticlesFragment extends Fragment {
 
         final SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         final RecyclerView recyclerView = view.findViewById(R.id.list);
+        final FloatingTextButton goToTopButton = view.findViewById(R.id.goToTop);
 
         Context context = view.getContext();
 
@@ -170,11 +175,41 @@ public class ArticlesFragment extends Fragment {
                 loadNextArticles();
             }
         };
+
+        goToTopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                recyclerView.smoothScrollToPosition(0);
+            }
+        });
         loadNextArticles();
         adapter.setOnBottomReachedListener(onBottomReachedListener);
         adapter.setOnArticleClickedListener(onArticleClickedListener);
         adapter.setOnArticlesChangedListener(onArticlesChangedListener);
+
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                int buttonVisibility = goToTopButton.getVisibility();
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager == null)
+                    return;
+                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                if ((firstVisibleItemPosition == 0 && buttonVisibility == View.VISIBLE)
+                        || (dy > 0 && buttonVisibility == View.VISIBLE)) {
+                    goToTopButton.setVisibility(View.GONE);
+                    goToTopButton.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.slide_down));
+                    return;
+                }
+                if (firstVisibleItemPosition != 0 && dy < -20 && buttonVisibility == View.GONE) {
+                    goToTopButton.setVisibility(View.VISIBLE);
+                    goToTopButton.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.slide_up));
+                }
+            }
+        });
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -189,6 +224,7 @@ public class ArticlesFragment extends Fragment {
 
         return view;
     }
+
 
     @Override
     public void onAttach(Context context) {
