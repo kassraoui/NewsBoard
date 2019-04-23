@@ -9,10 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.mkorp.newsboard.CategoryFragment;
-import com.mkorp.newsboard.CategoryFragment.OnCategoryClickedListener;
+import com.mkorp.newsboard.ui.CategoryFragment;
+import com.mkorp.newsboard.ui.CategoryFragment.OnCategoryClickedListener;
 import com.mkorp.newsboard.R;
-import com.mkorp.newsboard.model.CategoriesGenerator.CategoryCard;
+import com.mkorp.newsboard.CategoriesGenerator.CategoryCard;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 

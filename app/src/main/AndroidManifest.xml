@@ -15,7 +15,7 @@
             android:authorities="com.mkorp.newsboard.SuggestionsProvider"
             android:name=".SuggestionsProvider"/>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">

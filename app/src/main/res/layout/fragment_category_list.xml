@@ -5,5 +5,5 @@
     android:name="com.mkorp.newsboard.CategoryFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CategoryFragment"
+    tools:context=".ui.CategoryFragment"
     tools:listitem="@layout/fragment_category" />

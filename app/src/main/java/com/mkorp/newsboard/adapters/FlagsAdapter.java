@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mkorp.newsboard.R;
-import com.mkorp.newsboard.model.Country;
+import com.mkorp.newsboard.newsApi.Country;
 
 import java.util.LinkedList;
 import java.util.List;
