@@ -1,9 +1,5 @@
 package com.mkorp.newsboard.newsApi;
 
-import com.mkorp.newsboard.newsApi.ApiResponse;
-import com.mkorp.newsboard.newsApi.Category;
-import com.mkorp.newsboard.newsApi.Country;
-
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

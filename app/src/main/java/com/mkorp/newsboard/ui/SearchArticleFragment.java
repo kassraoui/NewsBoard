@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,18 +17,18 @@ import com.mkorp.newsboard.newsApi.Country;
 
 public class SearchArticleFragment extends Fragment {
 
-    public static final int TAG = 2;
+    static final int TAG = 2;
 
     private ArticlesFragment articlesFragment;
 
     public SearchArticleFragment() {
     }
 
-    public static SearchArticleFragment newInstance() {
+    static SearchArticleFragment newInstance() {
         return new SearchArticleFragment();
     }
 
-    public void searchArticles(String keywords) {
+    void searchArticles(String keywords) {
         articlesFragment.clearAllArticles();
         articlesFragment.setSearchKeyword(keywords);
         articlesFragment.loadNextArticles();

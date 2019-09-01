@@ -1,7 +1,7 @@
 package com.mkorp.newsboard.adapters;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import android.util.SparseArray;
 
 public class BottomBarAdapter extends SmartFragmentStatePagerAdapter {

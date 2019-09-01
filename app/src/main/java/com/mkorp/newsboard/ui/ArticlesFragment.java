@@ -2,11 +2,11 @@ package com.mkorp.newsboard.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,11 +57,11 @@ public class ArticlesFragment extends Fragment {
     private OnArticleClickedListener onArticleClickedListener;
     private OnArticlesChangedListener onArticlesChangedListener;
 
-    public static final int HOME_TAG = 0;
-    public static final int CATEGORY_TAG = 3;
+    static final int HOME_TAG = 0;
+    static final int CATEGORY_TAG = 3;
     private boolean lastPageReached;
 
-    public void setCountry(Country country) {
+    void setCountry(Country country) {
         page = 0;
         lastPageReached = false;
         this.country = country;
@@ -73,7 +73,7 @@ public class ArticlesFragment extends Fragment {
         this.category = category;
     }
 
-    public void setSearchKeyword(String searchKeywords) {
+    void setSearchKeyword(String searchKeywords) {
         page = 0;
         lastPageReached = false;
         category = Category.Search;
@@ -93,7 +93,7 @@ public class ArticlesFragment extends Fragment {
         retrofit = retrofitFactory.create();
     }
 
-    public static ArticlesFragment newInstance(Country defaultCountry, boolean forSearch) {
+    static ArticlesFragment newInstance(Country defaultCountry, boolean forSearch) {
         ArticlesFragment fragment = new ArticlesFragment();
         Bundle args = new Bundle();
         args.putBoolean(ARG_FOR_SEARCH, forSearch);
@@ -102,7 +102,7 @@ public class ArticlesFragment extends Fragment {
         return fragment;
     }
 
-    public void clearAllArticles() {
+    void clearAllArticles() {
         adapter.clearArticles();
     }
 
@@ -113,7 +113,7 @@ public class ArticlesFragment extends Fragment {
         return newsService.searchArticles(searchKeywords, ++page, retrofitFactory.getApiKey());
     }
 
-    public void loadNextArticles() {
+    void loadNextArticles() {
         if (lastPageReached)
             return;
         if ((searchKeywords == null && forSearch)) {
